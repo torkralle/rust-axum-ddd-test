@@ -1,23 +1,15 @@
-use std::env;
-
+use crate::domain::{
+    self,
+    aggregate::{user::User, value_object::user_id::UserId},
+};
 use axum::{
     body::Body,
-    extract::{Path, State},
     http::{Response, StatusCode},
     response::IntoResponse,
-    routing::{get, post},
-    Error, Json, Router,
+    Error, Json,
 };
-use serde::{Deserialize, Serialize};
 
-// type定義
-// the output to our `create_user` handler
-#[derive(Serialize)]
-pub struct User {
-    id: u64,
-    name: String,
-    email: String,
-}
+use serde::{Deserialize, Serialize};
 
 // Handler for /create-user
 pub async fn handle_create_user() -> impl IntoResponse {
@@ -28,18 +20,17 @@ pub async fn handle_create_user() -> impl IntoResponse {
 }
 
 // Handler for /users
-pub async fn handle_get_users() -> Json<Vec<User>> {
-    let users = vec![
-        User {
-            id: 1,
-            name: "Elijah".to_string(),
-            email: "elijah@example.com".to_string(),
-        },
-        User {
-            id: 2,
-            name: "John".to_string(),
-            email: "john@doe.com".to_string(),
-        },
-    ];
-    Json(users)
+pub async fn handle_get_users() -> Result<Json<Vec<User>>, Error> {
+    let user1 = User {
+        id: UserId::gen(),
+        name: "Hoshiko".to_string(),
+        email: "test@gmail..com".to_string(),
+    };
+    let user2 = User {
+        id: UserId::gen(),
+        name: "John".to_string(),
+        email: "john@doe.com".to_string(),
+    };
+    let users = vec![user1, user2];
+    Ok(Json(users))
 }

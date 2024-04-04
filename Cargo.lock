@@ -182,6 +182,7 @@ name = "axum_test"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "rand",
  "sea-orm",
  "serde",
  "thiserror",

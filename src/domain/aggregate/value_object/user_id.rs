@@ -1,3 +1,4 @@
+use rand;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 
