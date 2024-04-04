@@ -3,7 +3,7 @@ use crate::domain::{
     aggregate::{user::User, value_object::user_id::UserId},
 };
 use axum::{
-    body::Body,
+    body::{self, Body},
     http::{Response, StatusCode},
     response::IntoResponse,
     Error, Json,
@@ -11,7 +11,7 @@ use axum::{
 
 use serde::{Deserialize, Serialize};
 
-// Handler for /create-user
+// Handler for post /users
 pub async fn handle_create_user() -> impl IntoResponse {
     Response::builder()
         .status(StatusCode::CREATED)
@@ -19,8 +19,9 @@ pub async fn handle_create_user() -> impl IntoResponse {
         .unwrap()
 }
 
-// Handler for /users
-pub async fn handle_get_users() -> Result<Json<Vec<User>>, Error> {
+// Handler for get /users
+#[axum_macros::debug_handler]
+pub async fn handle_get_users() -> Result<Json<Vec<User>>, String> {
     let user1 = User {
         id: UserId::gen(),
         name: "Hoshiko".to_string(),

@@ -1,6 +1,7 @@
 use crate::domain::aggregate::value_object::user_id::UserId;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, Eq, PartialEq)]
 pub struct User {
     pub id: UserId, // メンバーのID (Value Object)
     pub name: String,
