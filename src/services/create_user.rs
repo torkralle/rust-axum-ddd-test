@@ -19,7 +19,7 @@ impl CreateUserInput {
 
 #[derive(Debug, Deserialize)]
 pub struct CreateUserOutput {
-    pub user_id: usize,
+    pub id: usize,
     pub name: String,
     pub email: String,
 }
@@ -48,7 +48,7 @@ where
         self.user_repository
             .create(&user)
             .map(|_| CreateUserOutput {
-                user_id: usize::from(user.id),
+                id: usize::from(user.id),
                 name: user.name,
                 email: user.email,
             })

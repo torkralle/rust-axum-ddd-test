@@ -1,13 +1,18 @@
 use crate::domain::aggregate::{user::User, value_object::user_id::UserId};
-use crate::services::create_user::CreateUserInput;
+use crate::services::create_user::{CreateUserInput, CreateUserOutput, CreateUserService};
+use crate::AppState;
 use axum::{
     body::Body,
+    extract::{Path, State},
     http::{Response, StatusCode},
     response::IntoResponse,
     Json,
 };
 
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Deserialize, Serialize)]
+
 pub struct CreateUserRequestBody {
     pub name: String,
     pub email: String,
@@ -19,12 +24,31 @@ impl std::convert::From<CreateUserRequestBody> for CreateUserInput {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+
+pub struct CreateUserResponseBody {
+    pub id: usize,
+    pub name: String,
+    pub email: String,
+}
+impl std::convert::From<CreateUserOutput> for CreateUserResponseBody {
+    fn from(CreateUserOutput { id, name, email }: CreateUserOutput) -> Self {
+        CreateUserResponseBody { id, name, email }
+    }
+}
+
 // Handler for post /users
-pub async fn handle_create_user() -> impl IntoResponse {
-    Response::builder()
-        .status(StatusCode::CREATED)
-        .body(Body::from("User created successfully"))
-        .unwrap()
+pub async fn handle_create_user(
+    State(state): State<AppState>,
+    Json(body): Json<CreateUserRequestBody>,
+) -> impl IntoResponse {
+    let create_user_input = CreateUserInput::from(body);
+    let mut service = CreateUserService::new(state.user_repository);
+    service
+        .execute(create_user_input)
+        .map(CreateUserResponseBody::from)
+        .map(Json)
+        .map_err(|e| e.to_string())
 }
 
 // Handler for get /users
