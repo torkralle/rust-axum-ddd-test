@@ -21,7 +21,7 @@ pub async fn handle_create_user() -> impl IntoResponse {
 
 // Handler for get /users
 #[axum_macros::debug_handler]
-pub async fn handle_get_users() -> Result<Json<Vec<User>>, String> {
+pub async fn handle_get_users() -> Json<Vec<User>> {
     let user1 = User {
         id: UserId::gen(),
         name: "Hoshiko".to_string(),
@@ -33,5 +33,5 @@ pub async fn handle_get_users() -> Result<Json<Vec<User>>, String> {
         email: "john@doe.com".to_string(),
     };
     let users = vec![user1, user2];
-    Ok(Json(users))
+    Json(users)
 }
