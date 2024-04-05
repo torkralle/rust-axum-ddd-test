@@ -1,15 +1,23 @@
-use crate::domain::{
-    self,
-    aggregate::{user::User, value_object::user_id::UserId},
-};
+use crate::domain::aggregate::{user::User, value_object::user_id::UserId};
+use crate::services::create_user::CreateUserInput;
 use axum::{
-    body::{self, Body},
+    body::Body,
     http::{Response, StatusCode},
     response::IntoResponse,
-    Error, Json,
+    Json,
 };
 
 use serde::{Deserialize, Serialize};
+pub struct CreateUserRequestBody {
+    pub name: String,
+    pub email: String,
+}
+
+impl std::convert::From<CreateUserRequestBody> for CreateUserInput {
+    fn from(CreateUserRequestBody { name, email }: CreateUserRequestBody) -> Self {
+        CreateUserInput::new(name, email)
+    }
+}
 
 // Handler for post /users
 pub async fn handle_create_user() -> impl IntoResponse {

@@ -3,12 +3,12 @@ use axum::{
     Router,
 };
 use sea_orm::{Database, DatabaseConnection};
-use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tracing::{info, info_span};
 use tracing_subscriber;
 mod domain;
 mod handler;
+mod services;
 use crate::handler::{handle_create_user, handle_get_users};
 
 #[tokio::main]
