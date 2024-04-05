@@ -1,15 +1,20 @@
-// use anyhow::Error;
-
+use super::db::Db;
 use crate::domain::{
     aggregate::{user::User, value_object::user_id::UserId},
-    interface::user_repository_interface::UserRepositoryInterface,
+    interface::user_repo::UserRepositoryInterface,
 };
-
-use super::db::Db;
+use anyhow::{Error, Result};
 
 #[derive(Clone, Debug)]
 pub struct UserRepository {
     db: Db,
+}
+
+#[derive(serde::Deserialize, serde::Serialize)]
+struct UserData {
+    id: usize,
+    name: String,
+    email: String,
 }
 
 impl UserRepository {
@@ -19,13 +24,6 @@ impl UserRepository {
 }
 
 impl UserRepositoryInterface for UserRepository {
-    fn find_user_by_id(&self, user_id: &UserId) -> Result<User, Error> {
-        match self.db.get::<UserData, _>(&user_id.to_string())? {
-            Some(data) => Ok(User::try_from(data)?),
-            None => Err(Error::msg("User not found")),
-        }
-    }
-
     fn create(&self, user: &User) -> Result<(), Error> {
         match self.db.get::<UserData, _>(&user.id.to_string())? {
             Some(_) => Err(Error::msg("User already exists")),
@@ -36,27 +34,6 @@ impl UserRepositoryInterface for UserRepository {
             }
         }
     }
-
-    fn update(&self, user: &User) -> Result<User, Error> {
-        match self.db.get::<UserData, _>(&user.id.to_string())? {
-            Some(_) => self
-                .db
-                .set(user.id.to_string(), &UserData::from(user.clone()))
-                .and_then(|_| self.db.get::<UserData, _>(&user.id.to_string()))
-                .map(|data| match data {
-                    Some(data) => User::try_from(data),
-                    None => Err(Error::msg("Failed to convert user data")),
-                })?,
-            None => Err(Error::msg("User not found")),
-        }
-    }
-
-    fn delete(&self, user: &User) -> Result<(), Error> {
-        match self.db.get::<UserData, _>(&user.id.to_string())? {
-            Some(_) => self.db.remove(user.id.to_string()),
-            None => Err(Error::msg("User not found")),
-        }
-    }
 }
 
 impl std::convert::From<User> for UserData {
@@ -64,6 +41,7 @@ impl std::convert::From<User> for UserData {
         UserData {
             id: user.id.into(),
             name: user.name,
+            email: user.email,
         }
     }
 }

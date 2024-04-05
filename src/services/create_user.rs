@@ -1,10 +1,9 @@
-use axum::Error;
 use serde::Deserialize;
 
 use crate::domain::aggregate::user::User;
 use crate::domain::aggregate::value_object::user_id;
 use crate::domain::interface::user_repo::UserRepositoryInterface;
-use std::result::Result;
+use anyhow::{Error, Result};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateUserInput {

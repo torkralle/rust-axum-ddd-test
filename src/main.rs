@@ -8,6 +8,7 @@ use tracing::{info, info_span};
 use tracing_subscriber;
 mod domain;
 mod handler;
+mod infra;
 mod services;
 use crate::handler::{handle_create_user, handle_get_users};
 
