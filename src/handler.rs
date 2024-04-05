@@ -1,5 +1,6 @@
 use crate::domain::aggregate::{user::User, value_object::user_id::UserId};
 use crate::services::create_user::{CreateUserInput, CreateUserOutput, CreateUserService};
+use crate::services::fetch_users::{FetchUsersOutput, FetchUsersUsecase};
 use crate::AppState;
 use axum::{
     body::Body,
@@ -52,18 +53,42 @@ pub async fn handle_create_user(
 }
 
 // Handler for get /users
-#[axum_macros::debug_handler]
-pub async fn handle_get_users() -> Json<Vec<User>> {
-    let user1 = User {
-        id: UserId::gen(),
-        name: "Hoshiko".to_string(),
-        email: "test@gmail..com".to_string(),
-    };
-    let user2 = User {
-        id: UserId::gen(),
-        name: "John".to_string(),
-        email: "john@doe.com".to_string(),
-    };
-    let users = vec![user1, user2];
-    Json(users)
+// #[axum_macros::debug_handler]
+// pub async fn handle_get_users() -> Json<Vec<User>> {
+//     let user1 = User {
+//         id: UserId::gen(),
+//         name: "Hoshiko".to_string(),
+//         email: "test@gmail..com".to_string(),
+//     };
+//     let user2 = User {
+//         id: UserId::gen(),
+//         name: "John".to_string(),
+//         email: "john@doe.com".to_string(),
+//     };
+//     let users = vec![user1, user2];
+//     Json(users)
+// }
+
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
+pub struct FetchUsersResponseBody {
+    pub users: Vec<User>,
+}
+
+impl std::convert::From<FetchUsersOutput> for FetchUsersResponseBody {
+    fn from(FetchUsersOutput { users }: FetchUsersOutput) -> Self {
+        FetchUsersResponseBody { users }
+    }
+}
+
+pub async fn handle_get_users(
+    State(state): State<AppState>,
+    // Path(param): Path<FetchUsersInputParam>,
+) -> Result<Json<FetchUsersResponseBody>, String> {
+    // let fetch_circle_input = FetchUsersInput::new(param.id);
+    let usecase = FetchUsersUsecase::new(state.user_repository);
+    usecase
+        .execute()
+        .map(FetchUsersResponseBody::from)
+        .map(Json)
+        .map_err(|e| e.to_string())
 }

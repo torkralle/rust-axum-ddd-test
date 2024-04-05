@@ -34,6 +34,21 @@ impl UserRepositoryInterface for UserRepository {
             }
         }
     }
+
+    fn read_users(&self) -> Result<Vec<User>, Error> {
+        let user1 = User {
+            id: UserId::gen(),
+            name: "Hoshiko".to_string(),
+            email: "test@gmail..com".to_string(),
+        };
+        let user2 = User {
+            id: UserId::gen(),
+            name: "John".to_string(),
+            email: "john@doe.com".to_string(),
+        };
+        let users = vec![user1, user2];
+        Ok(users)
+    }
 }
 
 impl std::convert::From<User> for UserData {

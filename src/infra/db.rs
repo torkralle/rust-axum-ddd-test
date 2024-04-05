@@ -36,6 +36,12 @@ impl Db {
         }
     }
 
+    // pub fn get<D>(&self) -> anyhow::Result<Option<D>>
+    // where
+    //     D: serde::de::DeserializeOwned,
+    // {
+    // }
+
     pub fn keys(&self) -> Vec<String> {
         let db = self.db.read().expect("read data from db");
         db.keys().cloned().collect()
