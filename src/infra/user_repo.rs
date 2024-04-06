@@ -1,13 +1,12 @@
-use super::db::Db;
-use crate::domain::{
-    aggregate::{user::User, value_object::user_id::UserId},
-    interface::user_repo::UserRepositoryInterface,
-};
+use crate::domain::interface::user_repo::UserRepositoryInterface;
+use crate::entities::{user, user::Entity as User};
+
 use anyhow::{Error, Result};
+use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr};
 
 #[derive(Clone, Debug)]
 pub struct UserRepository {
-    db: Db,
+    db: DatabaseConnection,
 }
 
 #[derive(serde::Deserialize, serde::Serialize)]
@@ -18,31 +17,35 @@ struct UserData {
 }
 
 impl UserRepository {
-    pub fn new() -> Self {
-        Self { db: Db::new() }
+    pub fn new(db: DatabaseConnection) -> Self {
+        Self { db }
     }
 }
 
 impl UserRepositoryInterface for UserRepository {
-    fn create(&self, user: &User) -> Result<(), Error> {
-        match self.db.get::<UserData, _>(&user.id.to_string())? {
-            Some(_) => Err(Error::msg("User already exists")),
-            None => {
-                self.db
-                    .set(user.id.to_string(), &UserData::from(user.clone()))?;
-                Ok(())
-            }
-        }
+    // fn create(&self, user: &User) -> Result<(), Error> {
+    //     match self.db.get::<UserData, _>(&user.id.to_string())? {
+    //         Some(_) => Err(Error::msg("User already exists")),
+    //         None => {
+    //             self.db
+    //                 .set(user.id.to_string(), &UserData::from(user.clone()))?;
+    //             Ok(())
+    //         }
+    //     }
+    // }
+
+    async fn create(&self, user: user::ActiveModel) -> Result<user::ActiveModel, DbErr> {
+        user.save(&self.db).await
     }
 
-    fn read_users(&self) -> Result<Vec<User>, Error> {
-        let user1 = User {
-            id: UserId::gen(),
+    async fn read_users(&self) -> Result<Vec<user::Model>, Error> {
+        let user1 = user::Model {
+            id: 1,
             name: "Hoshiko".to_string(),
             email: "test@gmail..com".to_string(),
         };
-        let user2 = User {
-            id: UserId::gen(),
+        let user2 = user::Model {
+            id: 2,
             name: "John".to_string(),
             email: "john@doe.com".to_string(),
         };
@@ -51,10 +54,10 @@ impl UserRepositoryInterface for UserRepository {
     }
 }
 
-impl std::convert::From<User> for UserData {
-    fn from(user: User) -> Self {
+impl std::convert::From<user::Model> for UserData {
+    fn from(user: user::Model) -> Self {
         UserData {
-            id: user.id.into(),
+            id: user.id as usize,
             name: user.name,
             email: user.email,
         }

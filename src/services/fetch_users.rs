@@ -1,10 +1,9 @@
 use anyhow::{Error, Result};
 use serde::{Deserialize, Serialize};
 
-use crate::domain::{
-    aggregate::{user::User, value_object::user_id::UserId},
-    interface::user_repo::UserRepositoryInterface,
-};
+use crate::domain::interface::user_repo::UserRepositoryInterface;
+
+use crate::entities::user;
 
 // // #[derive(Debug, Deserialize)]
 // pub struct FetchUserInput {
@@ -19,7 +18,7 @@ use crate::domain::{
 
 #[derive(Debug)]
 pub struct FetchUsersOutput {
-    pub users: Vec<User>,
+    pub users: Vec<user::Model>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -30,28 +29,26 @@ pub struct MemberOutput {
     pub grade: usize,
     pub major: String,
 }
-pub struct FetchUsersUsecase<T>
+pub struct FetchUsersService<T>
 where
     T: UserRepositoryInterface,
 {
     user_repository: T,
 }
 
-impl<T> FetchUsersUsecase<T>
+impl<T> FetchUsersService<T>
 where
     T: UserRepositoryInterface,
 {
     pub fn new(user_repository: T) -> Self {
-        FetchUsersUsecase { user_repository }
+        FetchUsersService { user_repository }
     }
 
-    pub fn execute(
+    pub async fn execute(
         &self,
         // fetch_user_input: FetchUserInput,
     ) -> Result<FetchUsersOutput, Error> {
-        // let user_id = UserId::from(fetch_user_input.id);
-        self.user_repository
-            .read_users()
-            .map(|users: Vec<User>| FetchUsersOutput { users: users })
+        let result = self.user_repository.read_users().await;
+        result.map(|users: Vec<user::Model>| FetchUsersOutput { users: users })
     }
 }

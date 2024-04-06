@@ -1,10 +1,11 @@
+use sea_orm::{DbErr, Set, TryIntoModel};
 use serde::Deserialize;
 
-use crate::domain::aggregate::user::User;
-use crate::domain::aggregate::value_object::user_id;
 use crate::domain::interface::user_repo::UserRepositoryInterface;
-use anyhow::{Error, Result};
+use crate::entities::user;
+use anyhow::Result;
 
+// todo: Userサービスにまとめたいところ
 #[derive(Debug, Deserialize)]
 pub struct CreateUserInput {
     pub name: String,
@@ -19,7 +20,7 @@ impl CreateUserInput {
 
 #[derive(Debug, Deserialize)]
 pub struct CreateUserOutput {
-    pub id: usize,
+    // pub id: usize,
     pub name: String,
     pub email: String,
 }
@@ -39,18 +40,16 @@ where
         CreateUserService { user_repository }
     }
 
-    pub fn execute(
+    pub async fn execute(
         &mut self,
         create_user_input: CreateUserInput,
-    ) -> Result<CreateUserOutput, Error> {
-        // todo: 最後に?でエラー処理したい
-        let user = User::new(create_user_input.name, create_user_input.email);
-        self.user_repository
-            .create(&user)
-            .map(|_| CreateUserOutput {
-                id: usize::from(user.id),
-                name: user.name,
-                email: user.email,
-            })
+    ) -> Result<user::Model, DbErr> {
+        let user = user::ActiveModel {
+            name: Set(create_user_input.name.to_owned()),
+            email: Set(create_user_input.email.to_owned()),
+            ..Default::default()
+        };
+        let result = self.user_repository.create(user).await?;
+        Ok(result.try_into_model()?)
     }
 }

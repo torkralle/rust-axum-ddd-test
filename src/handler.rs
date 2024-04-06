@@ -1,15 +1,16 @@
-use crate::domain::aggregate::{user::User, value_object::user_id::UserId};
+use crate::entities::user;
 use crate::services::create_user::{CreateUserInput, CreateUserOutput, CreateUserService};
-use crate::services::fetch_users::{FetchUsersOutput, FetchUsersUsecase};
+use crate::services::fetch_users::{FetchUsersOutput, FetchUsersService};
 use crate::AppState;
+use axum::body::Body;
 use axum::{
-    body::Body,
     extract::{Path, State},
     http::{Response, StatusCode},
     response::IntoResponse,
     Json,
 };
 
+use sea_orm::{DbErr, TryIntoModel};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -28,13 +29,12 @@ impl std::convert::From<CreateUserRequestBody> for CreateUserInput {
 #[derive(Debug, Deserialize, Serialize)]
 
 pub struct CreateUserResponseBody {
-    pub id: usize,
     pub name: String,
     pub email: String,
 }
 impl std::convert::From<CreateUserOutput> for CreateUserResponseBody {
-    fn from(CreateUserOutput { id, name, email }: CreateUserOutput) -> Self {
-        CreateUserResponseBody { id, name, email }
+    fn from(CreateUserOutput { name, email }: CreateUserOutput) -> Self {
+        CreateUserResponseBody { name, email }
     }
 }
 
@@ -45,11 +45,17 @@ pub async fn handle_create_user(
 ) -> impl IntoResponse {
     let create_user_input = CreateUserInput::from(body);
     let mut service = CreateUserService::new(state.user_repository);
-    service
-        .execute(create_user_input)
-        .map(CreateUserResponseBody::from)
-        .map(Json)
-        .map_err(|e| e.to_string())
+    let result = service.execute(create_user_input).await;
+    // let response;
+    // match result {
+    // Ok(r)=>    r.try_into_model().map_err(Into::into),
+    // Err(e) => Err(e.into())
+    // }
+    // result.map(|r| r.try_into_model()).map_err(Into::into)
+    Response::builder()
+        .status(StatusCode::CREATED)
+        .body(Body::from("User created successfully"))
+        .unwrap()
 }
 
 // Handler for get /users
@@ -71,7 +77,7 @@ pub async fn handle_create_user(
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct FetchUsersResponseBody {
-    pub users: Vec<User>,
+    pub users: Vec<user::Model>,
 }
 
 impl std::convert::From<FetchUsersOutput> for FetchUsersResponseBody {
@@ -84,11 +90,9 @@ pub async fn handle_get_users(
     State(state): State<AppState>,
     // Path(param): Path<FetchUsersInputParam>,
 ) -> Result<Json<FetchUsersResponseBody>, String> {
-    // let fetch_circle_input = FetchUsersInput::new(param.id);
-    let usecase = FetchUsersUsecase::new(state.user_repository);
-    usecase
-        .execute()
-        .map(FetchUsersResponseBody::from)
-        .map(Json)
-        .map_err(|e| e.to_string())
+    let service = FetchUsersService::new(state.user_repository);
+    match service.execute().await {
+        Ok(r) => Ok(Json(r.into())),
+        Err(e) => Err(e.to_string()),
+    }
 }
