@@ -21,6 +21,3 @@ anyhow = "1.0.81"
 sea-orm-migration = "0.12.15"
 futures = "0.3.30"
 dotenv = "0.15.0"
-# rusqlite = { version = "0.7.0", features=["bundled"] }
-# r2d2 = "0.8.10"
-# r2d2_sqlite = "0.24.0"
