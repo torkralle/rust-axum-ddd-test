@@ -1,5 +1,5 @@
 use crate::domain::interface::user_repo::UserRepositoryInterface;
-use crate::entities::{user, user::Entity as User};
+use crate::entities::user;
 
 use anyhow::{Error, Result};
 use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr};

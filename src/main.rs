@@ -5,10 +5,8 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use futures::executor::block_on;
 use infra::user_repo::UserRepository;
 use sea_orm::{ConnectionTrait, Database, DatabaseConnection, DbBackend, DbErr, Statement};
-use thiserror::Error;
 use tracing::{info, info_span};
 use tracing_subscriber;
 mod domain;
