@@ -1,7 +1,5 @@
-use crate::{
-    entities::user::{self, Entity as User},
-    services::user::user::CreateUserInput,
-};
+use crate::domain::user::model as user;
+use crate::services::user::user::CreateUserInput;
 use anyhow::{Error, Result};
 use sea_orm::DbErr;
 

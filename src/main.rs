@@ -6,7 +6,6 @@ use std::{env, sync::Arc};
 use tracing_subscriber;
 mod controllers;
 mod domain;
-mod entities;
 mod handler;
 mod infra;
 mod services;

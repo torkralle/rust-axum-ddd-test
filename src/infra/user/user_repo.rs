@@ -1,7 +1,5 @@
-use std::result;
-
-use crate::domain::interface::user::repository::UserRepositoryInterface;
-use crate::entities::{prelude::User, user};
+use crate::domain::user::repository::UserRepositoryInterface;
+use crate::domain::user::{model as user, prelude::User};
 
 use anyhow::{Error, Ok, Result};
 use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait};

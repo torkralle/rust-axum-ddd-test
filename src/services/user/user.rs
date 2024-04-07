@@ -1,9 +1,9 @@
 use sea_orm::{DbErr, Set, TryIntoModel};
 use serde::Deserialize;
 
-use crate::domain::interface::user::repository::UserRepositoryInterface;
-use crate::domain::interface::user::service::{FetchUsersOutput, UserServiceInterface};
-use crate::entities::user;
+use crate::domain::user::model as user;
+use crate::domain::user::repository::UserRepositoryInterface;
+use crate::domain::user::service::{FetchUsersOutput, UserServiceInterface};
 use anyhow::{Error, Result};
 
 #[derive(Debug, Deserialize)]
