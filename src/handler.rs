@@ -4,7 +4,8 @@ use axum::{routing::get, Router};
 
 use crate::{
     controllers::user::user::{
-        handle_create_user, handle_get_user_by_id, handle_get_users, handle_update_user,
+        handle_create_user, handle_delete_user_by_id, handle_get_user_by_id, handle_get_users,
+        handle_update_user,
     },
     AppState,
 };
@@ -31,6 +32,10 @@ pub fn router(state: Arc<AppState>) -> Router<AppState> {
             get({
                 let ss = Arc::clone(&clone_state);
                 move |path| handle_get_user_by_id(path, ss)
+            })
+            .delete({
+                let ss = Arc::clone(&clone_state);
+                move |path| handle_delete_user_by_id(ss, path)
             }),
         )
 }

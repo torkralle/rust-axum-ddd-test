@@ -40,7 +40,6 @@ pub struct UpdateUserDTO {
 
 impl UpdateUserDTO {
     pub fn new(id: i32, name: String, email: String) -> Self {
-        // let parsed_id: i32 = id.parse().unwrap();
         UpdateUserDTO { id, name, email }
     }
 }
@@ -50,3 +49,25 @@ impl std::convert::From<UpdateUserRequestBody> for UpdateUserDTO {
         UpdateUserDTO::new(id, name, email)
     }
 }
+
+// #[derive(Debug, Deserialize, Serialize)]
+// pub struct DeleteUserRequestBody {
+//     pub id: i32,
+// }
+
+// #[derive(Debug, Deserialize)]
+// pub struct DeleteUserDTO {
+//     pub id: i32,
+// }
+
+// impl DeleteUserDTO {
+//     pub fn new(id: i32) -> Self {
+//         DeleteUserDTO { id }
+//     }
+// }
+
+// impl std::convert::From<DeleteUserRequestBody> for DeleteUserDTO {
+//     fn from(DeleteUserRequestBody { id }: DeleteUserRequestBody) -> Self {
+//         DeleteUserDTO::new(id)
+//     }
+// }
