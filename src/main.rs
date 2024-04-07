@@ -1,6 +1,6 @@
 use anyhow::Error;
 use handler::router;
-use infra::user::user_repo::UserRepository;
+use infra::user::user::UserRepository;
 use sea_orm::{Database, DatabaseConnection};
 use std::{env, sync::Arc};
 use tracing_subscriber;
@@ -9,6 +9,7 @@ mod domain;
 mod handler;
 mod infra;
 mod services;
+mod utility;
 use dotenv::dotenv;
 
 #[derive(Clone)]

@@ -1,5 +1,5 @@
+use super::dto::{CreateUserDTO, UpdateUserDTO};
 use crate::domain::user::model as user;
-use crate::services::user::user::CreateUserInput;
 use anyhow::{Error, Result};
 use sea_orm::DbErr;
 
@@ -13,6 +13,7 @@ pub trait UserServiceInterface {
     async fn get_users(&self) -> Result<FetchUsersOutput, Error>;
     async fn create_user(
         &self,
-        create_user_input: CreateUserInput,
+        create_user_input: CreateUserDTO,
     ) -> Result<user::ActiveModel, DbErr>;
+    async fn update_user(&self, update_user_input: UpdateUserDTO) -> Result<user::Model, DbErr>;
 }

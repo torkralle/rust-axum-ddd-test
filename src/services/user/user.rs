@@ -1,29 +1,11 @@
-use sea_orm::{DbErr, Set, TryIntoModel};
-use serde::Deserialize;
+use sea_orm::{query, DbErr, Set, TryIntoModel};
 
+use crate::domain::user::dto::CreateUserDTO;
 use crate::domain::user::model as user;
+use crate::domain::user::query::UpdateUserQuery;
 use crate::domain::user::repository::UserRepositoryInterface;
 use crate::domain::user::service::{FetchUsersOutput, UserServiceInterface};
 use anyhow::{Error, Result};
-
-#[derive(Debug, Deserialize)]
-pub struct CreateUserInput {
-    pub name: String,
-    pub email: String,
-}
-
-impl CreateUserInput {
-    pub fn new(name: String, email: String) -> Self {
-        CreateUserInput { name, email }
-    }
-}
-
-#[derive(Debug, Deserialize)]
-pub struct CreateUserOutput {
-    // pub id: usize,
-    pub name: String,
-    pub email: String,
-}
 
 #[derive(Clone)]
 pub struct UserService<T>
@@ -40,9 +22,19 @@ impl<T: UserRepositoryInterface> UserService<T> {
 }
 
 impl<T: UserRepositoryInterface> UserServiceInterface for UserService<T> {
+    async fn get_user_by_id(&self, id: i32) -> Result<Option<user::Model>, DbErr> {
+        self.user_repository.find_user_by_id(id).await
+    }
+
+    async fn get_users(&self) -> Result<FetchUsersOutput, Error> {
+        let result = self.user_repository.read_users().await;
+        result.map(|users: Vec<user::Model>| FetchUsersOutput { users: users })
+    }
+
+    // todo: create_user_inputを短くする
     async fn create_user(
         &self,
-        create_user_input: CreateUserInput,
+        create_user_input: CreateUserDTO,
     ) -> Result<user::ActiveModel, DbErr> {
         let user = user::ActiveModel {
             name: Set(create_user_input.name.to_owned()),
@@ -53,12 +45,11 @@ impl<T: UserRepositoryInterface> UserServiceInterface for UserService<T> {
         Ok(result.try_into_model()?.into())
     }
 
-    async fn get_user_by_id(&self, id: i32) -> Result<Option<user::Model>, DbErr> {
-        self.user_repository.find_user_by_id(id).await
-    }
-
-    async fn get_users(&self) -> Result<FetchUsersOutput, Error> {
-        let result = self.user_repository.read_users().await;
-        result.map(|users: Vec<user::Model>| FetchUsersOutput { users: users })
+    async fn update_user(
+        &self,
+        dto: crate::domain::user::dto::UpdateUserDTO,
+    ) -> Result<user::Model, DbErr> {
+        let query = UpdateUserQuery::from(dto);
+        self.user_repository.update_user(query).await
     }
 }

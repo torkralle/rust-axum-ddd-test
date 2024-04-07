@@ -1,1 +1,1 @@
-mod errors;
+pub mod errors;

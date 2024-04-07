@@ -1,8 +1,9 @@
+use crate::domain::user::query::UpdateUserQuery;
 use crate::domain::user::repository::UserRepositoryInterface;
 use crate::domain::user::{model as user, prelude::User};
 
 use anyhow::{Error, Ok, Result};
-use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait};
+use sea_orm::{query, ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait, Set};
 
 #[derive(Clone, Debug)]
 pub struct UserRepository {
@@ -44,6 +45,22 @@ impl UserRepositoryInterface for UserRepository {
         };
         let users = vec![user1, user2];
         Ok(users)
+    }
+
+    async fn update_user(&self, query: UpdateUserQuery) -> Result<user::Model, DbErr> {
+        let user: user::ActiveModel = User::find_by_id(query.id)
+            .one(&self.db)
+            .await?
+            .ok_or(DbErr::Custom("Cannot find user.".to_owned()))
+            .map(Into::into)?;
+
+        user::ActiveModel {
+            id: user.id,
+            name: Set(query.name.to_owned()),
+            email: Set(query.email.to_owned()),
+        }
+        .update(&self.db)
+        .await
     }
 }
 
