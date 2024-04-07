@@ -1,11 +1,10 @@
-use sea_orm::{DbErr, DeleteResult, Set, TryIntoModel};
-
 use crate::domain::user::dto::{CreateUserDTO, UpdateUserDTO};
 use crate::domain::user::model as user;
 use crate::domain::user::query::UpdateUserQuery;
 use crate::domain::user::repository::UserRepositoryInterface;
 use crate::domain::user::service::{FetchUsersOutput, UserServiceInterface};
 use anyhow::{Error, Result};
+use sea_orm::{DbErr, DeleteResult, Set, TryIntoModel};
 
 #[derive(Clone)]
 pub struct UserService<T>

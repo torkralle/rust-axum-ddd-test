@@ -1,7 +1,3 @@
-use std::sync::Arc;
-
-use axum::{routing::get, Router};
-
 use crate::{
     controllers::user::user::{
         handle_create_user, handle_delete_user_by_id, handle_get_user_by_id, handle_get_users,
@@ -9,9 +5,10 @@ use crate::{
     },
     AppState,
 };
+use axum::{routing::get, Router};
+use std::sync::Arc;
 
 pub fn router(state: Arc<AppState>) -> Router<AppState> {
-    // let user_service = UserService::new(state.user_repository);
     let clone_state = Arc::clone(&state);
     Router::new()
         .route("/", get(|| async { "Hello world!" }))
