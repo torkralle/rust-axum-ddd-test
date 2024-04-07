@@ -1,6 +1,6 @@
 use crate::{
     entities::user::{self, Entity as User},
-    services::user::CreateUserInput,
+    services::user::user::CreateUserInput,
 };
 use anyhow::{Error, Result};
 use sea_orm::DbErr;

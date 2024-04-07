@@ -6,7 +6,6 @@ use crate::domain::interface::user::service::{FetchUsersOutput, UserServiceInter
 use crate::entities::user;
 use anyhow::{Error, Result};
 
-// todo: Userサービスにまとめたいところ
 #[derive(Debug, Deserialize)]
 pub struct CreateUserInput {
     pub name: String,
@@ -25,7 +24,7 @@ pub struct CreateUserOutput {
     pub name: String,
     pub email: String,
 }
-
+#[derive(Clone)]
 pub struct UserService<T>
 where
     T: UserRepositoryInterface,
