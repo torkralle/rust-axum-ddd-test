@@ -85,12 +85,17 @@ pub async fn handle_get_users(
 pub async fn handle_get_user_by_id(
     Path(id): Path<String>,
     state: Arc<AppState>,
-) -> Result<String, String> {
-    println!("{}", id);
+) -> Result<Json<user::Model>, String> {
     let ss = (*state).clone();
     let service = UserService::new(ss.user_repository);
-    match service.get_users().await {
-        Ok(_) => Ok(id),
+
+    let parsed_id: i32 = id.parse().unwrap();
+    println!("{}", parsed_id);
+    match service.get_user_by_id(parsed_id).await {
+        Ok(r) => match r {
+            Some(u) => Ok(Json(u)),
+            None => Err("no record".to_string()),
+        },
         Err(e) => Err(e.to_string()),
     }
 }

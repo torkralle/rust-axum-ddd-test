@@ -53,7 +53,7 @@ impl<T: UserRepositoryInterface> UserServiceInterface for UserService<T> {
     }
 
     async fn get_user_by_id(&self, id: i32) -> Result<Option<user::Model>, DbErr> {
-        todo!()
+        self.user_repository.find_user_by_id(id).await
     }
 
     async fn get_users(&self) -> Result<FetchUsersOutput, Error> {
