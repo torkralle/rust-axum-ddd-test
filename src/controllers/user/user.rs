@@ -9,6 +9,7 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use sea_orm::TryIntoModel;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -52,22 +53,18 @@ impl std::convert::From<FetchUsersOutput> for FetchUsersResponseBody {
 pub async fn handle_create_user(
     state: Arc<AppState>,
     Json(body): Json<CreateUserRequestBody>,
-) -> impl IntoResponse {
+) -> Result<Json<user::Model>, String> {
     let create_user_input = CreateUserInput::from(body);
     let ss = (*state).clone();
     let service = UserService::new(ss.user_repository);
     // let result = .user_service.create_user(create_user_input).await;
-    let result = service.create_user(create_user_input).await;
-    // let response;
-    // match result {
-    // Ok(r)=>    r.try_into_model().map_err(Into::into),
-    // Err(e) => Err(e.into())
-    // }
-    // result.map(|r| r.try_into_model()).map_err(Into::into)
-    Response::builder()
-        .status(StatusCode::CREATED)
-        .body(Body::from("User created successfully"))
-        .unwrap()
+    match service.create_user(create_user_input).await {
+        Ok(r) => match r.try_into_model() {
+            Ok(m) => Ok(Json(m)),
+            Err(_) => panic!("model error"),
+        },
+        Err(_) => panic!("db error"),
+    }
 }
 
 pub async fn handle_get_users(
