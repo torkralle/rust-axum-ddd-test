@@ -2,8 +2,8 @@ use crate::domain::user::query::UpdateUserQuery;
 use crate::domain::user::repository::UserRepositoryInterface;
 use crate::domain::user::{model as user, prelude::User};
 
-use anyhow::{Error, Ok, Result};
-use sea_orm::{query, ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait, Set};
+use anyhow::{Error, Result};
+use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, DeleteResult, EntityTrait, Set};
 
 #[derive(Clone, Debug)]
 pub struct UserRepository {
@@ -61,6 +61,16 @@ impl UserRepositoryInterface for UserRepository {
         }
         .update(&self.db)
         .await
+    }
+
+    async fn delete_user(&self, id: i32) -> Result<DeleteResult, DbErr> {
+        let user: user::ActiveModel = User::find_by_id(id)
+            .one(&self.db)
+            .await?
+            .ok_or(DbErr::Custom("Cannot find post.".to_owned()))
+            .map(Into::into)?;
+
+        user.delete(&self.db).await
     }
 }
 

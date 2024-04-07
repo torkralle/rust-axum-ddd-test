@@ -40,7 +40,6 @@ pub struct UpdateUserDTO {
 
 impl UpdateUserDTO {
     pub fn new(id: i32, name: String, email: String) -> Self {
-        // let parsed_id: i32 = id.parse().unwrap();
         UpdateUserDTO { id, name, email }
     }
 }

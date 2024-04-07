@@ -31,9 +31,7 @@ pub async fn handle_get_user_by_id(
 ) -> Result<Json<user::Model>, String> {
     let ss = (*state).clone();
     let service = UserService::new(ss.user_repository);
-
     let parsed_id: i32 = id.parse().unwrap();
-    println!("{}", parsed_id);
     match service.get_user_by_id(parsed_id).await {
         Ok(r) => match r {
             Some(u) => Ok(Json(u)),
@@ -68,6 +66,19 @@ pub async fn handle_update_user(
     let service = UserService::new(ss.user_repository);
     match service.update_user(dto).await {
         Ok(r) => Ok(Json(r)),
+        Err(_) => panic!("db error"),
+    }
+}
+
+pub async fn handle_delete_user_by_id(
+    state: Arc<AppState>,
+    Path(id): Path<String>,
+) -> Result<Json<String>, String> {
+    let parsed_id: i32 = id.parse().unwrap();
+    let ss = (*state).clone();
+    let service = UserService::new(ss.user_repository);
+    match service.delete_user(parsed_id).await {
+        Ok(_) => Ok(Json("OK".to_string())),
         Err(_) => panic!("db error"),
     }
 }
