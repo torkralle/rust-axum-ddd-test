@@ -1,8 +1,8 @@
-use crate::domain::interface::user_repo::UserRepositoryInterface;
-use crate::entities::user;
+use crate::domain::interface::user::repository::UserRepositoryInterface;
+use crate::entities::{prelude::User, user};
 
 use anyhow::{Error, Result};
-use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr};
+use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait};
 
 #[derive(Clone, Debug)]
 pub struct UserRepository {
@@ -23,18 +23,11 @@ impl UserRepository {
 }
 
 impl UserRepositoryInterface for UserRepository {
-    // fn create(&self, user: &User) -> Result<(), Error> {
-    //     match self.db.get::<UserData, _>(&user.id.to_string())? {
-    //         Some(_) => Err(Error::msg("User already exists")),
-    //         None => {
-    //             self.db
-    //                 .set(user.id.to_string(), &UserData::from(user.clone()))?;
-    //             Ok(())
-    //         }
-    //     }
-    // }
+    async fn find_user_by_id(&self, id: i32) -> Result<Option<user::Model>, DbErr> {
+        User::find_by_id(id).one(&self.db).await
+    }
 
-    async fn create(&self, user: user::ActiveModel) -> Result<user::ActiveModel, DbErr> {
+    async fn create_user(&self, user: user::ActiveModel) -> Result<user::ActiveModel, DbErr> {
         user.save(&self.db).await
     }
 

@@ -1,2 +1,1 @@
-pub mod create_user;
-pub mod fetch_users;
+pub mod user;
