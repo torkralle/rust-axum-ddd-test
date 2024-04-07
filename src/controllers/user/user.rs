@@ -1,47 +1,17 @@
+use crate::domain::user::dto::{
+    CreateUserDTO, CreateUserRequestBody, UpdateUserDTO, UpdateUserRequestBody,
+};
 use crate::domain::user::model as user;
-use crate::domain::user::service::{FetchUsersOutput, UserServiceInterface};
-use crate::services::user::user::{CreateUserInput, CreateUserOutput, UserService};
+use crate::domain::user::result::FetchUsersResponseBody;
+use crate::domain::user::service::UserServiceInterface;
+use crate::services::user::user::UserService;
 use crate::AppState;
 use axum::{extract::Path, Json};
 use sea_orm::TryIntoModel;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
-// todo: それぞれでServiceを作成しているので、一つにまとめる
-#[derive(Debug, Deserialize, Serialize)]
-pub struct CreateUserRequestBody {
-    pub name: String,
-    pub email: String,
-}
-
-impl std::convert::From<CreateUserRequestBody> for CreateUserInput {
-    fn from(CreateUserRequestBody { name, email }: CreateUserRequestBody) -> Self {
-        CreateUserInput::new(name, email)
-    }
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-
-pub struct CreateUserResponseBody {
-    pub name: String,
-    pub email: String,
-}
-impl std::convert::From<CreateUserOutput> for CreateUserResponseBody {
-    fn from(CreateUserOutput { name, email }: CreateUserOutput) -> Self {
-        CreateUserResponseBody { name, email }
-    }
-}
-
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
-pub struct FetchUsersResponseBody {
-    pub users: Vec<user::Model>,
-}
-
-impl std::convert::From<FetchUsersOutput> for FetchUsersResponseBody {
-    fn from(FetchUsersOutput { users }: FetchUsersOutput) -> Self {
-        FetchUsersResponseBody { users }
-    }
-}
+// todo: それぞれでServiceを作成しているので、一つにまとめたい。
+// 一度やってみたがだめだった。実装例探す
 
 pub async fn handle_get_users(
     state: Arc<AppState>,
@@ -77,14 +47,27 @@ pub async fn handle_create_user(
     state: Arc<AppState>,
     Json(body): Json<CreateUserRequestBody>,
 ) -> Result<Json<user::Model>, String> {
-    let create_user_input = CreateUserInput::from(body);
+    let dto = CreateUserDTO::from(body);
     let ss = (*state).clone();
     let service = UserService::new(ss.user_repository);
-    match service.create_user(create_user_input).await {
+    match service.create_user(dto).await {
         Ok(r) => match r.try_into_model() {
             Ok(m) => Ok(Json(m)),
             Err(_) => panic!("model error"),
         },
+        Err(_) => panic!("db error"),
+    }
+}
+
+pub async fn handle_update_user(
+    state: Arc<AppState>,
+    Json(body): Json<UpdateUserRequestBody>,
+) -> Result<Json<user::Model>, String> {
+    let dto = UpdateUserDTO::from(body);
+    let ss = (*state).clone();
+    let service = UserService::new(ss.user_repository);
+    match service.update_user(dto).await {
+        Ok(r) => Ok(Json(r)),
         Err(_) => panic!("db error"),
     }
 }
