@@ -1,4 +1,4 @@
-use crate::entities::user::user;
+use crate::domain::user::model as user;
 use anyhow::{Error, Result};
 use sea_orm::DbErr;
 

@@ -1,5 +1,5 @@
-use crate::domain::interface::user::service::{FetchUsersOutput, UserServiceInterface};
-use crate::entities::user::user;
+use crate::domain::user::model as user;
+use crate::domain::user::service::{FetchUsersOutput, UserServiceInterface};
 use crate::services::user::user::{CreateUserInput, CreateUserOutput, UserService};
 use crate::AppState;
 use axum::{extract::Path, Json};
