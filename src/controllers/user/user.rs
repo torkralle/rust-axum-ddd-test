@@ -1,20 +1,16 @@
-use std::sync::Arc;
-
 use crate::domain::interface::user::service::{FetchUsersOutput, UserServiceInterface};
 use crate::entities::user;
-// use crate::services::fetch_users::{FetchUsersOutput, FetchUsersService};
 use crate::services::user::user::{CreateUserInput, CreateUserOutput, UserService};
 use crate::AppState;
 use axum::body::Body;
 use axum::{
-    extract::{Path, State},
+    extract::Path,
     http::{Response, StatusCode},
     response::IntoResponse,
     Json,
 };
-
-use futures::future::Shared;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 // todo: それぞれでServiceを作成しているので、一つにまとめる
 #[derive(Debug, Deserialize, Serialize)]
@@ -51,27 +47,6 @@ impl std::convert::From<FetchUsersOutput> for FetchUsersResponseBody {
         FetchUsersResponseBody { users }
     }
 }
-
-#[derive(Clone)]
-pub struct UserController<T>
-where
-    T: UserServiceInterface,
-{
-    user_service: T,
-}
-
-impl<T: UserServiceInterface> UserController<T> {
-    pub fn new(user_service: T) -> Self {
-        UserController { user_service }
-    }
-}
-
-// pub struct UserController<T>
-// where
-//     T: Clone, // TがCloneトレイトを実装している必要がある
-// {
-
-// }
 
 // Handler for post /users
 pub async fn handle_create_user(
@@ -115,7 +90,7 @@ pub async fn handle_get_user_by_id(
     let ss = (*state).clone();
     let service = UserService::new(ss.user_repository);
     match service.get_users().await {
-        Ok(r) => Ok(id),
+        Ok(_) => Ok(id),
         Err(e) => Err(e.to_string()),
     }
 }
