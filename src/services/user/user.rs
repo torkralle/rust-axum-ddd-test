@@ -24,6 +24,7 @@ pub struct CreateUserOutput {
     pub name: String,
     pub email: String,
 }
+
 #[derive(Clone)]
 pub struct UserService<T>
 where

@@ -49,23 +49,6 @@ impl std::convert::From<FetchUsersOutput> for FetchUsersResponseBody {
     }
 }
 
-// Handler for post /users
-pub async fn handle_create_user(
-    state: Arc<AppState>,
-    Json(body): Json<CreateUserRequestBody>,
-) -> Result<Json<user::Model>, String> {
-    let create_user_input = CreateUserInput::from(body);
-    let ss = (*state).clone();
-    let service = UserService::new(ss.user_repository);
-    match service.create_user(create_user_input).await {
-        Ok(r) => match r.try_into_model() {
-            Ok(m) => Ok(Json(m)),
-            Err(_) => panic!("model error"),
-        },
-        Err(_) => panic!("db error"),
-    }
-}
-
 pub async fn handle_get_users(
     state: Arc<AppState>,
     // Path(param): Path<FetchUsersInputParam>,
@@ -93,5 +76,21 @@ pub async fn handle_get_user_by_id(
             None => Err("no record".to_string()),
         },
         Err(e) => Err(e.to_string()),
+    }
+}
+
+pub async fn handle_create_user(
+    state: Arc<AppState>,
+    Json(body): Json<CreateUserRequestBody>,
+) -> Result<Json<user::Model>, String> {
+    let create_user_input = CreateUserInput::from(body);
+    let ss = (*state).clone();
+    let service = UserService::new(ss.user_repository);
+    match service.create_user(create_user_input).await {
+        Ok(r) => match r.try_into_model() {
+            Ok(m) => Ok(Json(m)),
+            Err(_) => panic!("model error"),
+        },
+        Err(_) => panic!("db error"),
     }
 }
