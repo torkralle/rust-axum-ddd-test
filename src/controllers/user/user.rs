@@ -57,7 +57,6 @@ pub async fn handle_create_user(
     let create_user_input = CreateUserInput::from(body);
     let ss = (*state).clone();
     let service = UserService::new(ss.user_repository);
-    // let result = .user_service.create_user(create_user_input).await;
     match service.create_user(create_user_input).await {
         Ok(r) => match r.try_into_model() {
             Ok(m) => Ok(Json(m)),
