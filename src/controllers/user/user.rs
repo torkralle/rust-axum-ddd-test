@@ -1,14 +1,8 @@
 use crate::domain::interface::user::service::{FetchUsersOutput, UserServiceInterface};
-use crate::entities::user;
+use crate::entities::user::user;
 use crate::services::user::user::{CreateUserInput, CreateUserOutput, UserService};
 use crate::AppState;
-use axum::body::Body;
-use axum::{
-    extract::Path,
-    http::{Response, StatusCode},
-    response::IntoResponse,
-    Json,
-};
+use axum::{extract::Path, Json};
 use sea_orm::TryIntoModel;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

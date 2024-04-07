@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use crate::domain::interface::user::repository::UserRepositoryInterface;
 use crate::domain::interface::user::service::{FetchUsersOutput, UserServiceInterface};
-use crate::entities::user;
+use crate::entities::user::user;
 use anyhow::{Error, Result};
 
 #[derive(Debug, Deserialize)]

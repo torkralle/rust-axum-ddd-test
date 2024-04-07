@@ -1,5 +1,5 @@
 use crate::{
-    entities::user::{self, Entity as User},
+    entities::user::user::{self, Entity as User},
     services::user::user::CreateUserInput,
 };
 use anyhow::{Error, Result};

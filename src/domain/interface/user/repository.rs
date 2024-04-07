@@ -1,4 +1,4 @@
-use crate::entities::user;
+use crate::entities::user::user;
 use anyhow::{Error, Result};
 use sea_orm::DbErr;
 
