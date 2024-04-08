@@ -1,32 +1,34 @@
 use crate::domain::user::dto::{
-    CreateUserDTO, CreateUserRequestBody, UpdateUserDTO, UpdateUserRequestBody,
+    CreateUserDTO, CreateUserRequestBody, GetUsersDTO, GetUsersRequest, UpdateUserDTO,
+    UpdateUserRequestBody,
 };
 use crate::domain::user::model as user;
 use crate::domain::user::result::FetchUsersResponseBody;
 use crate::domain::user::service::UserServiceInterface;
 use crate::services::user::user::UserService;
 use crate::AppState;
+use axum::extract::Query;
 use axum::{extract::Path, Json};
-use sea_orm::TryIntoModel;
 use std::sync::Arc;
 
 // todo: それぞれでServiceを作成しているので、一つにまとめたい。
 // 一度やってみたがだめだった。実装例探す
 pub async fn handle_get_users(
     state: Arc<AppState>,
-    // Path(param): Path<FetchUsersInputParam>,
+    Query(query): Query<GetUsersRequest>,
 ) -> Result<Json<FetchUsersResponseBody>, String> {
     let ss = (*state).clone();
     let service = UserService::new(ss.user_repository);
-    match service.get_users().await {
+    let dto = GetUsersDTO::from(query);
+    match service.get_users(dto).await {
         Ok(r) => Ok(Json(r.into())),
         Err(e) => Err(e.to_string()),
     }
 }
 
 pub async fn handle_get_user_by_id(
-    Path(id): Path<String>,
     state: Arc<AppState>,
+    Path(id): Path<String>,
 ) -> Result<Json<user::Model>, String> {
     let ss = (*state).clone();
     let service = UserService::new(ss.user_repository);
