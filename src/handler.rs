@@ -14,7 +14,7 @@ pub fn router(state: Arc<AppState>) -> Router<AppState> {
         .route("/", get(|| async { "Hello world!" }))
         .route(
             "/users",
-            get(|| handle_get_users(state))
+            get(move |path| handle_get_users(state, path))
                 .post({
                     let ss = Arc::clone(&clone_state);
                     move |body| handle_create_user(ss, body)
@@ -28,7 +28,7 @@ pub fn router(state: Arc<AppState>) -> Router<AppState> {
             "/users/:id",
             get({
                 let ss = Arc::clone(&clone_state);
-                move |path| handle_get_user_by_id(path, ss)
+                move |query| handle_get_user_by_id(ss, query)
             })
             .delete({
                 let ss = Arc::clone(&clone_state);

@@ -1,6 +1,32 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
+
+// TODO: validaterをつける
+pub struct GetUsersRequest {
+    pub page: i16,
+    pub per_page: i8,
+}
+
+impl std::convert::From<GetUsersRequest> for GetUsersDTO {
+    fn from(GetUsersRequest { page, per_page }: GetUsersRequest) -> Self {
+        GetUsersDTO::new(page, per_page)
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GetUsersDTO {
+    pub page: i16,
+    pub per_page: i8,
+}
+
+impl GetUsersDTO {
+    pub fn new(page: i16, per_page: i8) -> Self {
+        GetUsersDTO { page, per_page }
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct CreateUserRequestBody {
     pub name: String,
     pub email: String,

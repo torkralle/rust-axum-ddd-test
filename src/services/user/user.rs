@@ -1,10 +1,10 @@
-use crate::domain::user::dto::{CreateUserDTO, UpdateUserDTO};
+use crate::domain::user::dto::{CreateUserDTO, GetUsersDTO, UpdateUserDTO};
 use crate::domain::user::model as user;
-use crate::domain::user::query::UpdateUserQuery;
+use crate::domain::user::query::{CreateUserQuery, GetUsersQuery, UpdateUserQuery};
 use crate::domain::user::repository::UserRepositoryInterface;
 use crate::domain::user::service::{FetchUsersOutput, UserServiceInterface};
 use anyhow::{Error, Result};
-use sea_orm::{DbErr, DeleteResult, Set, TryIntoModel};
+use sea_orm::{DbErr, DeleteResult, TryIntoModel};
 
 #[derive(Clone)]
 pub struct UserService<T>
@@ -25,19 +25,15 @@ impl<T: UserRepositoryInterface> UserServiceInterface for UserService<T> {
         self.user_repository.find_user_by_id(id).await
     }
 
-    async fn get_users(&self) -> Result<FetchUsersOutput, Error> {
-        let result = self.user_repository.read_users().await;
+    async fn get_users(&self, dto: GetUsersDTO) -> Result<FetchUsersOutput, Error> {
+        let query = GetUsersQuery::from(dto);
+        let result = self.user_repository.read_users(query).await;
         result.map(|users: Vec<user::Model>| FetchUsersOutput { users: users })
     }
 
-    // todo: repoの引数をqueryに変更する
-    async fn create_user(&self, dto: CreateUserDTO) -> Result<user::ActiveModel, DbErr> {
-        let user = user::ActiveModel {
-            name: Set(dto.name.to_owned()),
-            email: Set(dto.email.to_owned()),
-            ..Default::default()
-        };
-        let result = self.user_repository.create_user(user).await?;
+    async fn create_user(&self, dto: CreateUserDTO) -> Result<user::Model, DbErr> {
+        let query = CreateUserQuery::from(dto);
+        let result = self.user_repository.create_user(query).await?;
         Ok(result.try_into_model()?.into())
     }
 

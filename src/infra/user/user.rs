@@ -1,4 +1,4 @@
-use crate::domain::user::query::UpdateUserQuery;
+use crate::domain::user::query::{CreateUserQuery, GetUsersQuery, UpdateUserQuery};
 use crate::domain::user::repository::UserRepositoryInterface;
 use crate::domain::user::{model as user, prelude::User};
 
@@ -28,22 +28,22 @@ impl UserRepositoryInterface for UserRepository {
         User::find_by_id(id).one(&self.db).await
     }
 
-    async fn create_user(&self, user: user::ActiveModel) -> Result<user::ActiveModel, DbErr> {
+    async fn create_user(&self, query: CreateUserQuery) -> Result<user::ActiveModel, DbErr> {
+        let user = user::ActiveModel {
+            name: Set(query.name.to_owned()),
+            email: Set(query.email.to_owned()),
+            ..Default::default()
+        };
         user.save(&self.db).await
     }
 
-    async fn read_users(&self) -> Result<Vec<user::Model>, Error> {
-        let user1 = user::Model {
-            id: 1,
-            name: "Hoshiko".to_string(),
-            email: "test@gmail..com".to_string(),
-        };
-        let user2 = user::Model {
-            id: 2,
-            name: "John".to_string(),
-            email: "john@doe.com".to_string(),
-        };
-        let users = vec![user1, user2];
+    async fn read_users(&self, query: GetUsersQuery) -> Result<Vec<user::Model>, Error> {
+        let users = user::Entity::find()
+            .cursor_by(user::Column::Id)
+            .after(query.offset)
+            .first(query.limit as u64)
+            .all(&self.db)
+            .await?;
         Ok(users)
     }
 
