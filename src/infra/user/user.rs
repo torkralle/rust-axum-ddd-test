@@ -1,4 +1,4 @@
-use crate::domain::user::query::UpdateUserQuery;
+use crate::domain::user::query::{CreateUserQuery, UpdateUserQuery};
 use crate::domain::user::repository::UserRepositoryInterface;
 use crate::domain::user::{model as user, prelude::User};
 
@@ -28,7 +28,12 @@ impl UserRepositoryInterface for UserRepository {
         User::find_by_id(id).one(&self.db).await
     }
 
-    async fn create_user(&self, user: user::ActiveModel) -> Result<user::ActiveModel, DbErr> {
+    async fn create_user(&self, query: CreateUserQuery) -> Result<user::ActiveModel, DbErr> {
+        let user = user::ActiveModel {
+            name: Set(query.name.to_owned()),
+            email: Set(query.email.to_owned()),
+            ..Default::default()
+        };
         user.save(&self.db).await
     }
 

@@ -12,7 +12,6 @@ use std::sync::Arc;
 
 // todo: それぞれでServiceを作成しているので、一つにまとめたい。
 // 一度やってみたがだめだった。実装例探す
-
 pub async fn handle_get_users(
     state: Arc<AppState>,
     // Path(param): Path<FetchUsersInputParam>,
@@ -49,10 +48,7 @@ pub async fn handle_create_user(
     let ss = (*state).clone();
     let service = UserService::new(ss.user_repository);
     match service.create_user(dto).await {
-        Ok(r) => match r.try_into_model() {
-            Ok(m) => Ok(Json(m)),
-            Err(_) => panic!("model error"),
-        },
+        Ok(r) => Ok(Json(r)),
         Err(_) => panic!("db error"),
     }
 }
